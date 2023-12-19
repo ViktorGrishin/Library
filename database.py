@@ -70,7 +70,7 @@ class DataBase:
         # Меняем данные множества книг с этим названием
         id_title = cur.execute("""SELECT title
                                         FROM books
-                                        WHERE id_book = ?)
+                                        WHERE id_book = ?
                                     """, (id_book,)).fetchone()[-1]
         count = int(cur.execute("""SELECT stock
                                     FROM books_title
@@ -97,18 +97,39 @@ class DataBase:
         cur = self.con.cursor()
         cur.execute("""INSERT 
                         INTO readers(name, books) 
-                        VALUES(?, '')""", (name, ))
+                        VALUES(?, '')""", (name,))
         self.con.commit()
         id_reader = cur.execute("""SELECT id_reader
                                     FROM readers
-                                    WHERE name = ?""", (name, )).fetchone()[-1]
+                                    WHERE name = ?""", (name,)).fetchone()[-1]
         cur.close()
         return True, int(id_reader)
 
+    def add_new_book(self, title, count, author, section, picture=None):  # добавляет книгу с новым названием
+        cur = self.con.cursor()
+        # Проверка на наличие автора в базе
+        id_author = cur.execute("""SELECT id_author
+                                    FROM authors
+                                    WHERE name = ?
+                                    """, (author, )).fetchone()[-1]
+        if id_author:
+        self.con.commit()
+        cur.close()
+        # Создаём книгу с таким названием sqlite3.OperationalError
 
-    def add_new_book(self, title, count, author, section, picture=None):
-        cur
-        # Создаём книгу с таким названием
+    def add_book(self, id_title, count):
+        pass
+
+    def add_picture_book(self, id_title):
+        pass
+
+    def show_book(self, id_title):
+        pass
+
+    def filter_books(self, author=None, section=None):
+        pass
+
+    def write_off_book
 
     def close(self):
         self.con.close()
