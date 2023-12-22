@@ -168,12 +168,18 @@ class DataBase:
         for i in range(count):
             cur.execute("""INSERT INTO books(title, place)
                             VALUES(?, 0)""", (id_title, ))
-
         self.con.commit()
         cur.close()
+        return True
 
-    def add_picture_book(self, id_title):
-        pass
+    def add_picture_book(self, id_title, picture):
+        cur = self.con.cursor()
+        cur.execute("""UPDATE books_title
+                        SET picture = ?
+                        WHERE id_title = ?""", (picture, id_title))
+        self.con.commit()
+        cur.close()
+        return True
 
     def show_book(self, id_title):
         pass
