@@ -18,9 +18,9 @@ class DataBase:
             today = datetime.date.today()
             return_day = today + datetime.timedelta(days=days)
             cur.execute("""UPDATE books
-                            SET place = ?
-                            SET data_taken = ?
-                            SET data_return = ?
+                             SET place = ?,
+                              data_taken = ?,
+                              data_return = ?
                             WHERE id_book = ?""", (id_reader, str(today), str(return_day), id_book))
 
             # меняем количество книг в доступе
@@ -37,7 +37,7 @@ class DataBase:
             books = cur.execute("""SELECT books
                                     FROM readers
                                     WHERE id_reader = ?""", (id_reader,)).fetchone()[-1]
-            books += str(id_book[-1]) + ' '
+            books += str(id_book) + ' '
             cur.execute("""UPDATE readers
                             SET books = ?
                             WHERE id_reader = ?""", (books, id_reader))
@@ -49,7 +49,7 @@ class DataBase:
         cur.close()
         return status
 
-    def return_book(self, id_reader, id_book):
+    def return_book(self, id_book, id_reader):
         # У данного пользователя эта книга точно есть
         cur = self.con.cursor()
         # Проверка задолженности по книге
@@ -62,9 +62,9 @@ class DataBase:
             debt = True
         # Меняем данные книги
         cur.execute("""UPDATE books
-                        SET place = 0
-                        SET data_take = NULL
-                        SET data_return = NULL
+                        SET place = 0,
+                         data_taken = NULL,
+                         data_return = NULL
                         WHERE id_book = ?""", (id_book,))
 
         # Меняем данные множества книг с этим названием
@@ -96,23 +96,38 @@ class DataBase:
         # Пользователь ранее не существовал
         cur = self.con.cursor()
         cur.execute("""INSERT 
-                        INTO readers(name, books) 
+                        INTO readers (name, books) 
                         VALUES(?, '')""", (name,))
-        self.con.commit()
+
         id_reader = cur.execute("""SELECT id_reader
                                     FROM readers
                                     WHERE name = ?""", (name,)).fetchone()[-1]
+        self.con.commit()
         cur.close()
         return True, int(id_reader)
 
     def add_new_book(self, title, count, author, section, picture=None):  # добавляет книгу с новым названием
         cur = self.con.cursor()
-        # Проверка на наличие автора в базе
+        # Проверка наличия автора
         id_author = cur.execute("""SELECT id_author
                                     FROM authors
                                     WHERE name = ?
-                                    """, (author, )).fetchone()[-1]
-        if id_author:
+                                    """, (author, )).fetchone()
+
+        if not id_author:
+            cur.execute("""INSERT 
+                            INTO authors (name, )
+                            VALUES (?, )""",(author, ))
+            id_author = cur.execute("""SELECT id_author
+                                        FROM authors
+                                        WHERE name = ?""", (author, )).fetchone()
+        id_author = id_author[-1]
+        # Проверка наличия секции
+        id_section = cur.execute("""SELECT id_section
+                                    FROM sections
+                                    WHERE title = ?""", (section, )).fetchone()
+
+
         self.con.commit()
         cur.close()
         # Создаём книгу с таким названием sqlite3.OperationalError
@@ -129,7 +144,8 @@ class DataBase:
     def filter_books(self, author=None, section=None):
         pass
 
-    def write_off_book
+    def write_off_book(self, id_book):
+        pass
 
     def close(self):
         self.con.close()
