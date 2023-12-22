@@ -93,8 +93,15 @@ class DataBase:
         return True, debt
 
     def create_reader(self, name):
-        # Пользователь ранее не существовал
         cur = self.con.cursor()
+        id_reader = cur.execute("""SELECT id_reader
+                                    FROM readers
+                                    WHERE name = ?""", (name, )).fetchone()
+        if id_reader:
+            return False, id_reader[-1]
+
+        # Пользователь ранее не существовал
+
         cur.execute("""INSERT 
                         INTO readers (name, books) 
                         VALUES(?, '')""", (name,))
@@ -149,3 +156,4 @@ class DataBase:
 
     def close(self):
         self.con.close()
+
