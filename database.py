@@ -181,11 +181,17 @@ class DataBase:
         cur.close()
         return True
 
-    def show_book(self, id_title):
-        pass
 
     def filter_books(self, author=None, section=None):
-        pass
+        cur = self.con.cursor()
+        request = ''
+        if author:
+            request =
+
+        books = cur.execute("""SELECT id_book, title, picture
+                                FROM books_title
+                                WHERE """ + request).fetchall()
+
 
     def write_off_book(self, id_book):
         pass
