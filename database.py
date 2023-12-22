@@ -96,7 +96,7 @@ class DataBase:
         cur = self.con.cursor()
         id_reader = cur.execute("""SELECT id_reader
                                     FROM readers
-                                    WHERE name = ?""", (name, )).fetchone()
+                                    WHERE name = ?""", (name,)).fetchone()
         if id_reader:
             return False, id_reader[-1]
 
@@ -113,34 +113,64 @@ class DataBase:
         cur.close()
         return True, int(id_reader)
 
-    def add_new_book(self, title, count, author, section, picture=None):  # добавляет книгу с новым названием
+    def add_books(self, title, count, author, section, picture=None):  # добавляет книги
         cur = self.con.cursor()
+        id_title = cur.execute("""SELECT id_title
+                                    FROM books_title
+                                    WHERE title = ?""", (title, )).fetchone()
+
         # Проверка наличия автора
         id_author = cur.execute("""SELECT id_author
                                     FROM authors
                                     WHERE name = ?
-                                    """, (author, )).fetchone()
+                                    """, (author,)).fetchone()
 
         if not id_author:
             cur.execute("""INSERT 
                             INTO authors (name, )
-                            VALUES (?, )""",(author, ))
+                            VALUES (?, )""", (author,))
             id_author = cur.execute("""SELECT id_author
                                         FROM authors
-                                        WHERE name = ?""", (author, )).fetchone()
+                                        WHERE name = ?""", (author,)).fetchone()
         id_author = id_author[-1]
         # Проверка наличия секции
         id_section = cur.execute("""SELECT id_section
                                     FROM sections
-                                    WHERE title = ?""", (section, )).fetchone()
+                                    WHERE title = ?""", (section,)).fetchone()
+        if not id_section:
+            cur.execute("""INSERT
+                            INTO section (title, )
+                            VALUES (?, )""", section)
+            id_section = cur.execute("""SELECT id_section
+                                                FROM sections
+                                                WHERE title = ?""", (section,)).fetchone()
+        id_section = id_section[-1]
 
+        if not id_title:
+            # Создаём обложку книги
+            cur.execute("""INSERT INTO books_title (title, stock, total, author, picture, section)
+                                VALUES (?, ?, ?, ?, ?, ?)""", (title, count, count, id_author, picture, id_section))
+            id_title = cur.execute("""SELECT id_title
+                                                FROM books_title
+                                                WHERE title = ?""", (title,)).fetchone()[-1]
+        else:
+            # Увеличиваем общее число книг
+            id_title = id_title[-1]
+            stock, total = cur.execute("""SELECT stock, total
+                                            FROM books_title
+                                            WHERE id_title = ?""", (id_title, )).fetchone()
+            cur.execute("""UPDATE books_title
+                            SET stock = ?, 
+                                total = ?
+                            WHERE id_title = ?""", (stock + count, total + count, id_title))
+
+        # Добавляем книги в общий список книг
+        for i in range(count):
+            cur.execute("""INSERT INTO books(title, place)
+                            VALUES(?, 0)""", (id_title, ))
 
         self.con.commit()
         cur.close()
-        # Создаём книгу с таким названием sqlite3.OperationalError
-
-    def add_book(self, id_title, count):
-        pass
 
     def add_picture_book(self, id_title):
         pass
@@ -156,4 +186,3 @@ class DataBase:
 
     def close(self):
         self.con.close()
-
