@@ -184,13 +184,20 @@ class DataBase:
 
     def filter_books(self, author=None, section=None):
         cur = self.con.cursor()
-        request = ''
+        condition = []  # Критерии выбора книги
         if author:
-            request =
+            id_author = cur.execute("""SELECT id_author
+                                        FROM authors 
+                                        WHERE name = ?""", (author,)).fetchall()[-1]
+
+            condition.append(f'id_author = {id_author}')
+        if section:
+            id_section = cur.execute("""SELECT id_section
+                                            FROM section""")
 
         books = cur.execute("""SELECT id_book, title, picture
                                 FROM books_title
-                                WHERE """ + request).fetchall()
+                                WHERE """ + condition).fetchall()
 
 
     def write_off_book(self, id_book):
