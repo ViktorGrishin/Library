@@ -117,7 +117,7 @@ class DataBase:
         cur = self.con.cursor()
         id_title = cur.execute("""SELECT id_title
                                     FROM books_title
-                                    WHERE title = ?""", (title, )).fetchone()
+                                    WHERE title = ?""", (title,)).fetchone()
 
         # Проверка наличия автора
         id_author = cur.execute("""SELECT id_author
@@ -158,7 +158,7 @@ class DataBase:
             id_title = id_title[-1]
             stock, total = cur.execute("""SELECT stock, total
                                             FROM books_title
-                                            WHERE id_title = ?""", (id_title, )).fetchone()
+                                            WHERE id_title = ?""", (id_title,)).fetchone()
             cur.execute("""UPDATE books_title
                             SET stock = ?, 
                                 total = ?
@@ -167,7 +167,7 @@ class DataBase:
         # Добавляем книги в общий список книг
         for i in range(count):
             cur.execute("""INSERT INTO books(title, place)
-                            VALUES(?, 0)""", (id_title, ))
+                            VALUES(?, 0)""", (id_title,))
         self.con.commit()
         cur.close()
         return True
@@ -180,7 +180,6 @@ class DataBase:
         self.con.commit()
         cur.close()
         return True
-
 
     def filter_books(self, author=None, section=None):
         cur = self.con.cursor()
@@ -205,13 +204,37 @@ class DataBase:
         books = cur.execute("""SELECT id_title, title, picture
                                 FROM books_title
                                  """ + condition).fetchall()
+
+        cur.close()
         return books
 
     def write_off_book(self, id_book):
-        pass
+        cur = self.con.cursor()
+        # Изменяем количество книг в books_title
+        id_title, place = cur.execute("""SELECT title, place
+                                    FROM books
+                                    WHERE id_book = ?""", (id_book,)).fetchone()
+        stock, total = cur.execute("""SELECT stock, total
+                                        fROM books_title
+                                        WHERE id_title = ?""", (id_title,)).fetchone()
+        if place == '0':
+            # Книга была в наличии в библиотеке
+            cur.execute("""UPDATE books_title
+                            SET stock = ?,
+                                total = ?
+                            WHERE id_title = ?""", (stock - 1, total - 1, id_title))
+        else:
+            cur.execute("""UPDATE books_title
+                                        SET stock = ?,
+                                            total = ?
+                                        WHERE id_title = ?""", (stock, total - 1, id_title))
+        # Удаляем из books
+        cur.execute("""DELETE FROM books
+                            WHERE id_book = ?""", (id_book,))
+
+        self.con.commit()
+        cur.close()
 
     def close(self):
         self.con.close()
-
-
 
