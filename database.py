@@ -181,10 +181,12 @@ class DataBase:
         cur.close()
         return True
 
-    def filter_books(self, author=None, section=None):
+    def filter_books(self, author=None, section=None, all=False):
         cur = self.con.cursor()
         condition = []
         # Критерии выбора книги
+        if not all:  # Только книги в наличии
+            condition.append('stock > 0')
         if author:
             id_author = cur.execute("""SELECT id_author
                                         FROM authors 
@@ -238,3 +240,7 @@ class DataBase:
     def close(self):
         self.con.close()
 
+
+if __name__ == '__main__':
+    db = DataBase()
+    print(*zip(*db.filter_books(section='Классика', all=True)))
