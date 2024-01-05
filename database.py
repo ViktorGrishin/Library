@@ -237,6 +237,28 @@ class DataBase:
         self.con.commit()
         cur.close()
 
+    def give_readers(self):
+        cur = self.con.cursor()
+        users = cur.execute("""SELECT name
+                                FROM readers
+                                WHERE id_reader > 0""").fetchall()
+        cur.close()
+        return users
+
+    def give_sections(self):
+        cur = self.con.cursor()
+        sections = cur.execute("""SELECT title
+                                        FROM sections""").fetchall()
+        cur.close()
+        return sections
+
+    def give_authors(self):
+        cur = self.con.cursor()
+        authors = cur.execute("""SELECT name
+                                    FROM authors""").fetchall()
+        cur.close()
+        return authors
+
     def close(self):
         self.con.close()
 

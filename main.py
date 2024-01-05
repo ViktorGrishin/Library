@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
         self.user_wnd = UserWnd(self)
         self.statusbar.showMessage("")
         self.hide()
-        self.user_wnd.show()
+        self.user_wnd.open()
 
     def create_user(self):
         # Создаём диалоговое окно, чтобы получить имя пользователя
