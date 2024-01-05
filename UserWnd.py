@@ -1,10 +1,10 @@
 import sys
 
-from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtWidgets import QMainWindow
 from PyQt5 import uic
 
 
-class UserWnd(QWidget):
+class UserWnd(QMainWindow):
     def __init__(self, *args):
         super().__init__()
         uic.loadUi("userWidget.ui", self)
@@ -54,9 +54,13 @@ class UserWnd(QWidget):
 
     def update_table(self):
         # Очищаем таблицу
-        pass
+        self.tableWidget.setTowCount(0)
         # Выводим таблицу
-        # data = self.parentForm.db.filter_
+        if self.takeBtn.isChecked():
+            # data = self.parentForm.db.filter_
+            pass
+        else:
+            pass
 
     def exit(self):
         self.hide()

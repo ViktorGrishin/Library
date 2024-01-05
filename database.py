@@ -47,13 +47,16 @@ class DataBase:
 
         self.con.commit()  # Сохраняем изменения
         cur.close()
-        return status
+        return status, id_book
 
-    def return_book(self, id_book, id_reader):
+    def return_book(self, id_book, reader_name):
         # У данного пользователя эта книга точно есть
         cur = self.con.cursor()
         # Проверка задолженности по книге
         debt = False
+        id_reader = cur.execute("""SELECT id_reader
+                                    FROM readers
+                                    WHERE name = ?""", (reader_name,)).fetchone()[-1]
         return_data = cur.execute("""SELECT data_return
                         FROM books
                         WHERE id_book = ?""", (id_book,)).fetchone()[-1]
@@ -203,7 +206,7 @@ class DataBase:
             condition = 'WHERE ' + ' AND '.join(condition)
         else:
             condition = ''
-        books = cur.execute("""SELECT id_title, title, picture
+        books = cur.execute("""SELECT title, picture
                                 FROM books_title
                                  """ + condition).fetchall()
 
@@ -258,6 +261,18 @@ class DataBase:
                                     FROM authors""").fetchall()
         cur.close()
         return authors
+
+    def give_readers_books(self, reader_name):
+        cur = self.con.cursor()
+        id_reader = cur.execute("""SELECT id_reader
+                                FROM readers
+                                WHERE name = ?""", (reader_name,)).fetchall()
+        books = cur.execute("""SELECT books.id_book, books_title.title, books_title.picture
+                                        FROM books
+                                        LEFT JOIN books
+                                            ON books.title = books.title
+                                        WHERE place =  ?""", (id_reader,)).fetchall()
+        return books
 
     def close(self):
         self.con.close()
