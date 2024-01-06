@@ -17,7 +17,6 @@ class MainWindow(QMainWindow):
         self.enterBtn.clicked.connect(self.open_user_wnd)
         self.createBtn.clicked.connect(self.create_user)
 
-
     # Функции перехода в др окна
     def open_user_wnd(self):
         self.user_wnd = UserWnd(self)
@@ -35,7 +34,6 @@ class MainWindow(QMainWindow):
                 self.statusbar.showMessage("Пользователь уже существует")
             else:
                 self.statusbar.showMessage(f'Пользователь "{name}" успешно создан. Вы у нас {id_user} по счёту')
-
 
 
 if __name__ == '__main__':

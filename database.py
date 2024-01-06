@@ -133,8 +133,8 @@ class DataBase:
 
         if not id_author:
             cur.execute("""INSERT 
-                            INTO authors (name, )
-                            VALUES (?, )""", (author,))
+                            INTO authors (name)
+                            VALUES (?)""", (author,))
             id_author = cur.execute("""SELECT id_author
                                         FROM authors
                                         WHERE name = ?""", (author,)).fetchone()
@@ -296,4 +296,4 @@ class DataBase:
 
 if __name__ == '__main__':
     db = DataBase()
-    print(*zip(*db.filter_books(section='Классика', all=True)))
+    db.add_books(title='Лабиринты Ехо', author='Макс Фрай', section='Фантастика', count=1)

@@ -13,7 +13,7 @@ class UserWnd(QMainWindow):
 
         self.takeBtn.setChecked(True)
         self.completeBtn.setEnabled(False)
-        self.mode_wdgs = [self.authorLbl, self.authorsList, self.sectionLbl, self.sectionsList]
+        self.mode_wdgs = [self.authorLbl, self.authorsList, self.sectionLbl, self.sectionsList, self.clearFilterBtn]
 
         self.returnBtn.toggled.connect(self.change_mode)
         self.takeBtn.toggled.connect(self.change_mode)
@@ -25,8 +25,27 @@ class UserWnd(QMainWindow):
         self.tableWidget.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
         self.tableWidget.clicked.connect(self.choose)
         self.completeBtn.clicked.connect(self.complete)
+        self.clearFilterBtn.clicked.connect(self.clear_filter)
 
         self.update_table()
+
+
+    def clear_filter(self):
+        self.show()
+        # Очищаем QlistWidgets
+        self.sectionsList.clear()
+        self.authorsList.clear()
+        # Заполняем QList'ы
+
+        # Список жанров
+        sections = self.parentForm.db.give_sections()
+        self.sectionsList.addItems(*zip(*sections))
+        # Список авторов
+        authors = self.parentForm.db.give_authors()
+        self.authorsList.addItems(*zip(*authors))
+
+        # Так как пользователь ещё ничего не выбрал, выключаем кнопку действия
+        self.completeBtn.setEnabled(False)
 
     def complete(self):
         if self.takeBtn.isChecked():
@@ -72,7 +91,6 @@ class UserWnd(QMainWindow):
                 self.statusbar.showMessage("Ошибка! Выберете ячейку с книгой")
 
         self.update_table()
-
 
     def choose(self):
         if not self.tableWidget.currentRow() is None:
