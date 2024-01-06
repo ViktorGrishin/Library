@@ -269,12 +269,18 @@ class DataBase:
         cur = self.con.cursor()
         id_reader = cur.execute("""SELECT id_reader
                                 FROM readers
-                                WHERE name = ?""", (reader_name,)).fetchall()
-        books = cur.execute("""SELECT books.id_book, books_title.title, books_title.picture
-                                        FROM books
-                                        LEFT JOIN books
-                                            ON books.title = books.title
-                                        WHERE place =  ?""", (id_reader,)).fetchall()
+                                WHERE name = ?""", (reader_name,)).fetchone()[-1]
+
+        books = cur.execute("""SELECT 
+                                    books.id_book, 
+                                    books_title.title, 
+                                    books_title.picture
+                                FROM 
+                                    books 
+                                LEFT JOIN books_title
+                                    ON books_title.id_title = books.title
+                                WHERE 
+                                    books.place = ?""", (id_reader,)).fetchall()
         return books
 
     def give_reader_id(self, name):

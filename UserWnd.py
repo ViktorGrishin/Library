@@ -33,7 +33,6 @@ class UserWnd(QMainWindow):
             # Взятие книги
             # Проверяем, что пользователь выбрал книгу
             if not self.tableWidget.currentRow() is None:
-                self.completeBtn.setEnabled(True)
                 # Проверка выбора пользователя
                 if self.usersList.selectedItems():
                     name = self.usersList.currentItem().text()
@@ -48,13 +47,32 @@ class UserWnd(QMainWindow):
                     self.statusbar.showMessage(f"Вы успешно взяли книгу с номером {id_book}!")
                 else:
                     self.statusbar.showMessage("Ошибка!")
-                self.update_table()
+
             else:
                 self.completeBtn.setEnabled(False)
                 self.statusbar.showMessage("Ошибка! Выберете ячейку с книгой")
         else:
             # Возврат книги
-            pass
+            # Книга для возврата выбрана
+            if not self.tableWidget.currentRow() is None:
+                # Возвращаем книгу в библиотеку
+                id_book = self.tableWidget.item(self.tableWidget.currentRow(), 0).text()
+                reader_name = self.usersList.currentItem().text()
+                ok, debt = self.parentForm.db.return_book(id_book=id_book, reader_name=reader_name)
+                if ok:
+                    if debt:
+                        self.statusbar.showMessage(f'Оплатите задолженность. Книга с номером {id_book} возвращена')
+                    else:
+                        self.statusbar.showMessage(f'Книга с номером {id_book} успешно возвращена')
+                else:
+                    self.statusbar.showMessage("Ошибка!")
+
+            else:
+                self.completeBtn.setEnabled(False)
+                self.statusbar.showMessage("Ошибка! Выберете ячейку с книгой")
+
+        self.update_table()
+
 
     def choose(self):
         if not self.tableWidget.currentRow() is None:
@@ -71,7 +89,6 @@ class UserWnd(QMainWindow):
                 elem.setVisible(False)
 
             self.completeBtn.setEnabled(False)
-            self.update_table()
         elif self.takeBtn.isChecked() and self.authorLbl.isHidden():
             for elem in self.mode_wdgs:
                 elem.setVisible(True)
@@ -123,7 +140,25 @@ class UserWnd(QMainWindow):
                         i, j, QTableWidgetItem(elem))
             self.tableWidget.resizeColumnsToContents()
         else:
-            pass
+            # Очищаем таблицу
+            self.tableWidget.setRowCount(0)
+            # Получаем данные
+            if not self.usersList.currentItem():
+                self.statusbar.showMessage("Ошибка! Выберете пользователя")
+                return
+            name_reader = self.usersList.currentItem().text()
+            data = self.parentForm.db.give_readers_books(reader_name=name_reader)
+            # Заполняем таблицу
+            title = ['Номер книги', 'Название', 'Обложка']
+            self.tableWidget.setColumnCount(len(title))
+            self.tableWidget.setHorizontalHeaderLabels(title)
+            for i, row in enumerate(data):
+                self.tableWidget.setRowCount(
+                    self.tableWidget.rowCount() + 1)
+                for j, elem in enumerate(row):
+                    self.tableWidget.setItem(
+                        i, j, QTableWidgetItem(str(elem)))
+            self.tableWidget.resizeColumnsToContents()
         self.completeBtn.setEnabled(False)
 
     def exit(self):
