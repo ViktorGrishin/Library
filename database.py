@@ -6,8 +6,11 @@ class DataBase:
     def __init__(self, path='database.sqlite'):
         self.con = sqlite3.connect(path)
 
-    def take_book(self, id_title, id_reader, days=14):
+    def take_book(self, title, id_reader, days=14):
         cur = self.con.cursor()
+        id_title = cur.execute("""SELECT id_title
+                                FROM books_title 
+                                WHERE title = ?""", (title,)).fetchone()[-1]
         status = True
         id_book = cur.execute("""SELECT id_book
                                 FROM books 
@@ -273,6 +276,13 @@ class DataBase:
                                             ON books.title = books.title
                                         WHERE place =  ?""", (id_reader,)).fetchall()
         return books
+
+    def give_reader_id(self, name):
+        cur = self.con.cursor()
+        id_reader = cur.execute("""SELECT id_reader
+                                        FROM readers
+                                        WHERE name = ?""", (name,)).fetchone()[-1]
+        return id_reader
 
     def close(self):
         self.con.close()
