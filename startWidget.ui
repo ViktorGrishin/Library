@@ -21,43 +21,6 @@
     <item row="0" column="0">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Администрирование</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QPushButton" name="addBtn">
-          <property name="font">
-           <font>
-            <family>Times New Roman</family>
-            <pointsize>16</pointsize>
-            <weight>50</weight>
-            <italic>false</italic>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Добавить книги</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="writeOffBtn">
-          <property name="text">
-           <string>Списать книгу</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string>Пользование</string>

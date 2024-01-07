@@ -145,8 +145,8 @@ class DataBase:
                                     WHERE title = ?""", (section,)).fetchone()
         if not id_section:
             cur.execute("""INSERT
-                            INTO section (title, )
-                            VALUES (?, )""", section)
+                            INTO sections (title)
+                            VALUES (?)""", (section, ))
             id_section = cur.execute("""SELECT id_section
                                                 FROM sections
                                                 WHERE title = ?""", (section,)).fetchone()
@@ -296,4 +296,4 @@ class DataBase:
 
 if __name__ == '__main__':
     db = DataBase()
-    db.add_books(title='Лабиринты Ехо', author='Макс Фрай', section='Фантастика', count=1)
+    # db.add_books(title='Почемучка', author='Дитрих А.', section='Научно-популярная', count=3)
